@@ -118,7 +118,7 @@ function loadPOIs(manualRefresh) {
                         if(poi['type'] == 'node' && typeof poi['tags'] != 'undefined'){
                                 lat = poi['lat'];
                                 lon = poi['lon'];
-                                popuptext = getPopupText(poi);
+                                popuptext = getPopupText(poi, L.latLng(lat, lon));
                                 markers.push(new L.Marker([lat, lon]).bindPopup(getTagName() + "</br>" + popuptext));
                         }
                         if(poi['type'] == 'way' && typeof poi['tags'] != 'undefined'){
@@ -132,7 +132,7 @@ function loadPOIs(manualRefresh) {
                                                 }
                                         });
                                 });
-                                popuptext = getPopupText(poi);
+                                popuptext = getPopupText(poi,way.getBounds().getCenter());
                                 
                                 //add polygon to map
                                 ways.push(way.bindPopup(getTagName() + "</br>" + popuptext));
@@ -316,7 +316,7 @@ function editOSM() {
             '&editor=id' + '&lat=' + center.lat + '&lon=' + center.lng);
     }
 
-function getPopupText(poi) {
+function getPopupText(poi, pos) {
         if(typeof poi['tags']['name'] != 'undefined')
                 popuptext += poi['tags']['name'] + "</br>";
         if(typeof poi['tags']['operator'] != 'undefined')
@@ -329,6 +329,9 @@ function getPopupText(poi) {
                 popuptext += poi['tags']['phone'] + "</br>";
         if(typeof poi['tags']['website'] != 'undefined')
                 popuptext += '<a href="' + poi['tags']['website'] + '" target="_blank" rel="nofollow">' + poi['tags']['website'] + '</a></br>';
+        //calculate linear distance (10 meter steps) if myLocation is set
+        if (myLocation != null)
+                popuptext += "distance ~ " + Math.round(pos.distanceTo(myLocation)/10)*10 + " meters</br>";
         return popuptext;
         }
 
